@@ -75,8 +75,6 @@ public class JsonParser {
                 String key = keys.next();
                 if(jsonChampionData.get(key) instanceof JSONObject){
                     if(((JSONObject) jsonChampionData.get(key)).getInt("key") == id){
-                        System.out.println("CHAMP FOUND - " +
-                                ((JSONObject) jsonChampionData.get(key)).getString("name"));
                         return ((JSONObject) jsonChampionData.get(key)).getString("name");
                     }
                 }

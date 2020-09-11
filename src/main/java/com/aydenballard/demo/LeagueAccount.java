@@ -13,6 +13,8 @@ public class LeagueAccount {
     private long profileIconId; //profile icon ID
 
     private ArrayList<Long> lastTenMatchIds; //match IDs of last 10 games
+    private ArrayList<Boolean> winLossHistory; //booleans of games won - true if win
+
     private ArrayList<Integer> mostPlayedChampionIds; //IDs of most played champions
     private ArrayList<String> mostPlayedChampions; //names of most played champions
 
@@ -35,11 +37,13 @@ public class LeagueAccount {
         //initialise lists
         this.mostPlayedChampions = new ArrayList<>();
         this.lastTenMatchIds = new ArrayList<>();
+        this.winLossHistory = new ArrayList<>();
         //fill lists with data
         try{
             this.lastTenMatchIds = JsonParser.getMatchHistoryIds(regionId,accountId);
             this.mostPlayedChampionIds = JsonParser.mostPlayedChamps(regionId,summonerID);
             generateMostPlayedChampionsNames();
+            generateWinLossHistory();
         } catch(Exception e){
             e.printStackTrace();
         }
@@ -51,6 +55,12 @@ public class LeagueAccount {
     private void generateMostPlayedChampionsNames() {
         for(Integer i : mostPlayedChampionIds){
             mostPlayedChampions.add(JsonParser.getChampionNameFromId(i));
+        }
+    }
+
+    private void generateWinLossHistory(){
+        for(Long l : lastTenMatchIds){
+            winLossHistory.add(JsonMatchParser.didPlayerWin(regionId,l,accountId));
         }
     }
 
@@ -96,6 +106,10 @@ public class LeagueAccount {
      */
     public List<Long> getLastTenMatchIds(){
         return lastTenMatchIds;
+    }
+
+    public List<Boolean> getWinLossHistory(){
+        return winLossHistory;
     }
 
     /**
