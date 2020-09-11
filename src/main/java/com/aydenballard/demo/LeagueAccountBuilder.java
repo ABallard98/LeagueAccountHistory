@@ -13,11 +13,12 @@ public class LeagueAccountBuilder {
      */
     public static LeagueAccount build(String regionId, JSONObject jsonObject){
         String accountName = jsonObject.getString("name");
+        String encryptedSummonerId = jsonObject.getString("id");
         String accountId = jsonObject.getString("accountId");
         long summonerLevel = jsonObject.getLong("summonerLevel");
         long profileIconId = jsonObject.getLong("profileIconId");
 
-        return new LeagueAccount(regionId,accountName, accountId, summonerLevel,profileIconId);
+        return new LeagueAccount(regionId, accountName, encryptedSummonerId, accountId, summonerLevel, profileIconId);
     }
 
 

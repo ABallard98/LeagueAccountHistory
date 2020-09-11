@@ -5,12 +5,16 @@ import java.util.List;
 
 public class LeagueAccount {
 
-    private String accountName; //summmoner name of user
+    private String accountName; //summoner name of user
+    private String summonerID; //encrypted summoner ID
     private String regionId; //region id of user
     private String accountId; //encrypted ID of user
     private long summonerLevel; //level of user
     private long profileIconId; //profile icon ID
-    private ArrayList<Long> latestMatchIds; //match IDs of last 10 games
+
+    private ArrayList<Long> lastTenMatchIds; //match IDs of last 10 games
+    private ArrayList<Integer> mostPlayedChampionIds; //IDs of most played champions
+    private ArrayList<String> mostPlayedChampions; //names of most played champions
 
     /**
      * Constructor for league account object
@@ -20,16 +24,33 @@ public class LeagueAccount {
      * @param summonerLevel - level of summoner
      * @param profileIconId - profile icon ID
      */
-    public LeagueAccount(String regionId, String accountName, String accountId, long summonerLevel, long profileIconId){
+    public LeagueAccount(String regionId, String accountName, String summonerID, String accountId, long summonerLevel, long profileIconId){
+        //initialise properties
         this.regionId = regionId;
+        this.summonerID = summonerID;
         this.accountName = accountName;
         this.accountId = accountId;
         this.summonerLevel = summonerLevel;
         this.profileIconId = profileIconId;
+        //initialise lists
+        this.mostPlayedChampions = new ArrayList<>();
+        this.lastTenMatchIds = new ArrayList<>();
+        //fill lists with data
         try{
-            this.latestMatchIds = JsonParser.getMatchHistoryIds(regionId,accountId);
+            this.lastTenMatchIds = JsonParser.getMatchHistoryIds(regionId,accountId);
+            this.mostPlayedChampionIds = JsonParser.mostPlayedChamps(regionId,summonerID);
+            generateMostPlayedChampionsNames();
         } catch(Exception e){
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Method to generate the list of the user's most played champions
+     */
+    private void generateMostPlayedChampionsNames() {
+        for(Integer i : mostPlayedChampionIds){
+            mostPlayedChampions.add(JsonParser.getChampionNameFromId(i));
         }
     }
 
@@ -39,6 +60,18 @@ public class LeagueAccount {
      */
     public String getAccountName(){
         return this.accountName;
+    }
+
+    /**
+     * Method to get the encrypted account ID of the user
+     * @return String - encrypted account ID
+     */
+    public String getAccountId(){
+        return this.accountId;
+    }
+
+    public String getSummonerID(){
+        return this.summonerID;
     }
 
     /**
@@ -61,8 +94,17 @@ public class LeagueAccount {
      * Method to get the match IDs of last 10 games played
      * @return List - List of long objects containing match IDs
      */
-    public List<Long> getMatchHistory(){
-        return latestMatchIds;
+    public List<Long> getLastTenMatchIds(){
+        return lastTenMatchIds;
     }
+
+    /**
+     * Method to get the List of the user's top 5 played champions
+     * @return List - list of champion name's
+     */
+    public List<String> getMostPlayedChampionNames(){
+        return this.mostPlayedChampions;
+    }
+
 
 }
