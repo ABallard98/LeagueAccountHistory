@@ -12,14 +12,13 @@ public class JsonMatchParser {
      * @return Boolean - true if blue side won
      */
     public static boolean blueSideWin(String region, Long matchId){
-        String url = "https://" + region + ".api.riotgames.com/lol/match/v4/matches/" + matchId + "?api_key=" +
+        final String URL = "https://" + region + ".api.riotgames.com/lol/match/v4/matches/" + matchId + "?api_key=" +
                 FileReader.readApiKey();
         try{
-            JSONObject jsonMatchData = JsonReader.readJsonFromUrl(url);
+            JSONObject jsonMatchData = JsonReader.readJsonFromUrl(URL);
             JSONArray jsonTeamsDataArray = jsonMatchData.getJSONArray("teams");
             JSONObject jsonBlueSide = jsonTeamsDataArray.getJSONObject(0);
             String winOrLoss = jsonBlueSide.getString("win");
-
             if(winOrLoss.equals("Fail")){
                 return false;
             } else{
@@ -40,10 +39,10 @@ public class JsonMatchParser {
      */
     private static String getChampionPickedInMatchId(String region, Long matchId, int participantId){
         participantId = participantId-1; //must be -1 as participantID starts at 1, but participants start at 0
-        String url = "https://" + region + ".api.riotgames.com/lol/match/v4/matches/" + matchId + "?api_key=" +
+        final String URL = "https://" + region + ".api.riotgames.com/lol/match/v4/matches/" + matchId + "?api_key=" +
                 FileReader.readApiKey();
         try{
-            JSONObject jsonMatchData = JsonReader.readJsonFromUrl(url);
+            JSONObject jsonMatchData = JsonReader.readJsonFromUrl(URL);
             JSONArray participants = jsonMatchData.getJSONArray("participants");
             JSONObject participantData = participants.getJSONObject(participantId);
             int pickedChampionId = participantData.getInt("championId");
@@ -54,14 +53,20 @@ public class JsonMatchParser {
         return null;
     }
 
+    /**
+     * Method to calculate whether a player won their game
+     * @param region - region ID
+     * @param matchId - match ID
+     * @param accountId - account ID
+     * @return boolean - true if won
+     */
     public static boolean didPlayerWin(String region, Long matchId, String accountId){
         //get participant id
-        String url = "https://" + region + ".api.riotgames.com/lol/match/v4/matches/" + matchId + "?api_key=" +
+        final String URL = "https://" + region + ".api.riotgames.com/lol/match/v4/matches/" + matchId + "?api_key=" +
                 FileReader.readApiKey();
         try{
-            JSONObject jsonMatchData = JsonReader.readJsonFromUrl(url);
+            JSONObject jsonMatchData = JsonReader.readJsonFromUrl(URL);
             JSONArray jsonParticipants = jsonMatchData.getJSONArray("participantIdentities");
-
             for(int i = 0; i < jsonParticipants.length(); i++){
                 JSONObject participant = jsonParticipants.getJSONObject(i);
                 int participantId = participant.getInt("participantId");
@@ -82,11 +87,11 @@ public class JsonMatchParser {
                             return true;
                         }
                     }
-                }
-
-            }
+                }//end of if
+            }//end of for loop
         } catch(Exception e){
             e.printStackTrace();
+            return false;
         }
         return false;
     }

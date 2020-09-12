@@ -1,5 +1,8 @@
 package com.aydenballard.demo;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +16,7 @@ public class LeagueAccount {
     private long profileIconId; //profile icon ID
 
     private ArrayList<Long> lastTenMatchIds; //match IDs of last 10 games
+    private ArrayList<LeagueMatch> lastTenGames;
     private ArrayList<Boolean> winLossHistory; //booleans of games won - true if win
 
     private ArrayList<Integer> mostPlayedChampionIds; //IDs of most played champions
@@ -38,12 +42,16 @@ public class LeagueAccount {
         this.mostPlayedChampions = new ArrayList<>();
         this.lastTenMatchIds = new ArrayList<>();
         this.winLossHistory = new ArrayList<>();
+
+        this.lastTenGames = new ArrayList<>();
+
         //fill lists with data
         try{
             this.lastTenMatchIds = JsonParser.getMatchHistoryIds(regionId,accountId);
             this.mostPlayedChampionIds = JsonParser.mostPlayedChamps(regionId,summonerID);
             generateMostPlayedChampionsNames();
             generateWinLossHistory();
+            generateLastTenGames();
         } catch(Exception e){
             e.printStackTrace();
         }
@@ -58,9 +66,22 @@ public class LeagueAccount {
         }
     }
 
+    /**
+     * Method to populate the winLossHistory list with the loss/win records
+     * of the player's last 10 games
+     */
     private void generateWinLossHistory(){
         for(Long l : lastTenMatchIds){
             winLossHistory.add(JsonMatchParser.didPlayerWin(regionId,l,accountId));
+        }
+    }
+
+    private void generateLastTenGames() throws IOException {
+        for(Long l : lastTenMatchIds){
+            final String URL = "https://euw1.api.riotgames.com/lol/match/v4/matches/" + l + "?api_key=" +
+                    FileReader.readApiKey();
+            JSONObject jsonLeagueMatch = JsonReader.readJsonFromUrl(URL);
+            lastTenGames.add(LeagueMatchBuilder.build(regionId, l, jsonLeagueMatch));
         }
     }
 
@@ -120,5 +141,12 @@ public class LeagueAccount {
         return this.mostPlayedChampions;
     }
 
+    /**
+     * Method to get the List of LeagueMatch objects
+     * @return List - list of LeagueMatch objects
+     */
+    public List<LeagueMatch> getLastTenGames(){
+        return this.lastTenGames;
+    }
 
 }
